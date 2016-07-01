@@ -5,4 +5,5 @@ LPC1769 ARM Cortex-M3 form NXP.
 ## Getting Started
 ### Prequisites
 ### Installing
-
+###
+1. Run LPCXpresso and choose workspace location.

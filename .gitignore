@@ -1,3 +1,5 @@
 .metadata/*
 *.stackdump
-Debug/*
+digital_compass/Debug/*
+lpc_chip_175x_6x/Debug/*
+lpc_board_nxp_lpcxpresso_1769/Debug/*

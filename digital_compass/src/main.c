@@ -1,8 +1,8 @@
 /*
 ===============================================================================
- Name        : digital_compass.c
+ Name        : main.c
  Author      : Richie Agpaoa (RAA)
- Version     :
+ Version     : 1.0
  Copyright   :
  Description : main definition
 ===============================================================================

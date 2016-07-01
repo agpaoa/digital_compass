@@ -1,9 +1,9 @@
 /*
 ===============================================================================
  Name        : digital_compass.c
- Author      : $(author)
+ Author      : Richie Agpaoa (RAA)
  Version     :
- Copyright   : $(copyright)
+ Copyright   :
  Description : main definition
 ===============================================================================
 */

@@ -5,7 +5,7 @@
  * Generated linker script file for LPC1769
  * Created from linkscript.ldt by FMCreateLinkLibraries
  * Using Freemarker v2.3.23
- * LPCXpresso v8.0.0 [Build 526] [2015-11-23]  on Jun 30, 2016 10:50:15 PM
+ * LPCXpresso v8.0.0 [Build 526] [2015-11-23]  on Jun 30, 2016 11:15:11 PM
  */
 
 INCLUDE "digital_compass_Debug_library.ld"

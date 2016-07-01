@@ -271,11 +271,14 @@ void Board_I2C_Init(I2C_ID_T id)
 		Chip_IOCON_SetI2CPad(LPC_IOCON, I2CPADCFG_STD_MODE);
 		break;
 
+	// For the digital compass
+	// SDA P0[0] Function3
+    // SCL P0[1] Function3
 	case I2C1:
-		Chip_IOCON_PinMux(LPC_IOCON, 0, 19, IOCON_MODE_INACT, IOCON_FUNC2);
-		Chip_IOCON_PinMux(LPC_IOCON, 0, 20, IOCON_MODE_INACT, IOCON_FUNC2);
-		Chip_IOCON_EnableOD(LPC_IOCON, 0, 19);
-		Chip_IOCON_EnableOD(LPC_IOCON, 0, 20);
+		Chip_IOCON_PinMux(LPC_IOCON, 0, 0, IOCON_MODE_INACT, IOCON_FUNC3);
+		Chip_IOCON_PinMux(LPC_IOCON, 0, 1, IOCON_MODE_INACT, IOCON_FUNC3);
+		Chip_IOCON_EnableOD(LPC_IOCON, 0, 0);
+		Chip_IOCON_EnableOD(LPC_IOCON, 0, 1);
 		break;
 
 	case I2C2:

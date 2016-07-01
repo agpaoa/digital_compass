@@ -3,6 +3,8 @@
 	<name>digital_compass</name>
 	<comment></comment>
 	<projects>
+		<project>lpc_chip_175x_6x</project>
+		<project>lpc_board_nxp_lpcxpresso_1769</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

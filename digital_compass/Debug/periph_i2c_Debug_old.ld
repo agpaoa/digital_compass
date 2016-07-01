@@ -4,12 +4,12 @@
  * (c) NXP Semiconductors 2013-2016
  * Generated linker script file for LPC1769
  * Created from generic_c.ld (8.0.0 ())
- * By LPCXpresso v8.0.0 [Build 526] [2015-11-23]  on Fri Jul 01 14:52:51 PDT 2016
+ * By LPCXpresso v8.0.0 [Build 526] [2015-11-23]  on Wed Jun 29 15:21:56 PDT 2016
  */
 
 
-INCLUDE "digital_compass_Debug_library.ld"
-INCLUDE "digital_compass_Debug_memory.ld"
+INCLUDE "periph_i2c_Debug_library.ld"
+INCLUDE "periph_i2c_Debug_memory.ld"
 
 ENTRY(ResetISR)
 

@@ -1,0 +1,326 @@
+/*
+ * @brief I2C example
+ * This example show how to use the I2C interface
+ *
+ * @note
+ * Copyright(C) NXP Semiconductors, 2012
+ * All rights reserved.
+ *
+ * @par
+ * Software that is described herein is for illustrative purposes only
+ * which provides customers with programming information regarding the
+ * LPC products.  This software is supplied "AS IS" without any warranties of
+ * any kind, and NXP Semiconductors and its licensor disclaim any and
+ * all warranties, express or implied, including all implied warranties of
+ * merchantability, fitness for a particular purpose and non-infringement of
+ * intellectual property rights.  NXP Semiconductors assumes no responsibility
+ * or liability for the use of the software, conveys no license or rights under any
+ * patent, copyright, mask work right, or any other intellectual property rights in
+ * or to any products. NXP Semiconductors reserves the right to make changes
+ * in the software without notification. NXP Semiconductors also makes no
+ * representation or warranty that such application will be suitable for the
+ * specified use without further testing or modification.
+ *
+ * @par
+ * Permission to use, copy, modify, and distribute this software and its
+ * documentation is hereby granted, under NXP Semiconductors' and its
+ * licensor's relevant copyrights in the software, without fee, provided that it
+ * is used in conjunction with NXP Semiconductors microcontrollers.  This
+ * copyright, permission, and disclaimer notice must appear in all copies of
+ * this code.
+ */
+
+#include <math.h>
+#include "board.h"
+#include "ecompass.h"
+#include "LSM303D.h"
+
+// Defines
+#define I2C_ECOMP_BUS		I2C1
+#define SPEED_100KHZ		100000
+
+// Globals
+int16_t acc[3];		// Signed integer accelerometer values
+int16_t mag[3];		// Signed integer magnetometer values
+
+static I2C_ID_T i2cDev = I2C1;
+static int mode_poll;          /* Poll/Interrupt mode flag */
+
+
+// Initialize the I2C bus
+void I2C_Init(I2C_ID_T id, int speed)
+{
+	Board_I2C_Init(id);					// Initialize board I2C
+	Chip_I2C_Init(id);					// Initialize I2C1
+	Chip_I2C_SetClockRate(id, speed);   // Set clock speed
+	I2C_Set_Mode(id, 0);				// Set default mode interrupt
+}
+
+// Set I2C mode to polling/interrupt
+void I2C_Set_Mode(I2C_ID_T id, int polling)
+{
+	if(!polling)
+	{
+		mode_poll &= ~(1 << id);
+		Chip_I2C_SetMasterEventHandler(id, Chip_I2C_EventHandler);
+		NVIC_EnableIRQ(id == I2C0 ? I2C0_IRQn : I2C1_IRQn);
+	}
+	else
+	{
+		mode_poll |= 1 << id;
+		NVIC_DisableIRQ(id == I2C0 ? I2C0_IRQn : I2C1_IRQn);
+		Chip_I2C_SetMasterEventHandler(id, Chip_I2C_EventHandlerPolling);
+	}
+}
+
+// I2C state handler
+static void i2c_state_handling(I2C_ID_T id)
+{
+	if (Chip_I2C_IsMasterActive(id))
+		Chip_I2C_MasterStateHandler(id);
+	else
+		Chip_I2C_SlaveStateHandler(id);
+}
+
+// IRQ handler for I2C1
+void I2C1_IRQHandler(void)
+{
+	i2c_state_handling(I2C1);
+}
+
+// Function called when timer expires
+void SysTick_Handler(void)
+{
+/*
+	printf("Closed Position: %d\t Current Position: %d\t\tDoor ", closedHeading, currentHeading);
+	isClosed() ? printf("is closed!\n") : printf("is open!\n");
+*/
+}
+
+// Initialize the compass
+void Compass_Init()
+{
+	I2C_ID_T id = I2C_ECOMP_BUS;
+	static I2C_XFER_T ecomp_xfer;
+	I2C_Init(I2C1, SPEED_100KHZ);
+	ecomp_xfer.slaveAddr = (LSM303D_ADDR << 1);
+	Chip_I2C_SlaveSetup(id, I2C_SLAVE_2, &ecomp_xfer, NULL, 0);
+
+	writeReg(CTRL1, ACC_ON_50HZ);			// Enable accelerometer +/- 2 at 50 Hz
+	writeReg(CTRL5, MAG_HIGH_RES_6_25HZ);	// Magnetometer Hi-Res at 6.25 Hz
+	writeReg(CTRL6, MAG_FS_4);				// Magnetometer +/- 4
+	writeReg(CTRL7, MAG_ON);				// Enable magnetometer
+}
+
+// Compass demo
+void Compass_Test()
+{
+	setClosedPosition();
+
+	while(1)
+	{
+		if(!isClosed())
+			printf("Door is open\n");
+		else
+			printf("Door is closed\n");
+
+	}
+}
+
+// Set the value of a register
+void writeReg(uint8_t regAddr, uint8_t regVal)
+{
+	uint8_t txBuff[2];
+	txBuff[0] = regAddr;
+	txBuff[1] = regVal;
+	Chip_I2C_MasterSend(i2cDev, LSM303D_ADDR, txBuff, 2);
+}
+
+// Read value from register
+uint8_t readReg(uint8_t regAddr)
+{
+	uint8_t txBuff[1];
+	uint8_t rxBuff[1];
+	txBuff[0] = regAddr;
+	Chip_I2C_MasterSend(i2cDev, LSM303D_ADDR, txBuff, 1);
+	Chip_I2C_MasterRead(i2cDev, LSM303D_ADDR, rxBuff, 1);
+	return rxBuff[0];
+}
+
+// Enables compass
+void enableCompass()
+{
+	writeReg(CTRL1, ACC_ON_50HZ); 	// Enable accelerometer
+	writeReg(CTRL7, MAG_ON);		// Enable magnetometer
+}
+
+// Disables compass
+void disableCompass()
+{
+	writeReg(CTRL1, ACC_OFF);		// Disable accelerometer
+	writeReg(CTRL7, MAG_OFF); 		// Disable magnetometer
+}
+
+// Returns true if door is in closed position
+bool isClosed()
+{
+	int ranger = 2; // Adjusts closed range
+	int rounds = 25;  // Must count to 20 closed positions to return true
+	int threshold = rounds*(0.80);
+	int lower = closedHeading - ranger;  // Lower bound of closed position
+	int upper = closedHeading + ranger;	// Upper bound of closed position
+	int count = 0;
+	int i;
+
+	// If lower is negative
+	if(lower < 0 || upper > 360)
+	{
+		if(lower < 0)
+			lower += 361;
+		if(upper > 360)
+			upper -=361;
+
+		for(i = 0; i < rounds; i++)
+		{
+			currentHeading = getPosition();
+			if( (currentHeading >= lower && currentHeading <= 360) ||
+					(currentHeading >= 0 && currentHeading <= upper))
+			{
+				printf("Heading: %d\n", currentHeading);
+				count++;
+
+			}
+			else
+			{
+				printf("Heading: %d\n", currentHeading);
+			}
+		}
+	}
+	else
+	{
+		for(i = 0; i < rounds; i++)
+		{
+			currentHeading = getPosition();
+			if(currentHeading >= lower && currentHeading <= upper )
+			{
+				printf("Heading: %d\n", currentHeading);
+				count++;
+			}
+			else
+			{
+				printf("Heading: %d\n", currentHeading);
+			}
+		}
+	}
+
+	if(count < threshold)
+		return false;
+	else
+		return true;
+}
+
+// Store ecompass readings in acc and mag
+void readCompass()
+{
+	accRead(acc);
+	magRead(mag);
+}
+
+// Get accelerometer values
+void accRead(int16_t *acc)
+{
+	acc[0] = (int16_t)(readReg(OUT_X_H_A) << 8 | readReg(OUT_X_L_A))*A_CONV_FACTOR;
+	acc[1] = (int16_t)(readReg(OUT_Y_H_A) << 8 | readReg(OUT_Y_L_A))*A_CONV_FACTOR;
+	acc[2] = (int16_t)(readReg(OUT_Z_H_A) << 8 | readReg(OUT_Z_L_A))*A_CONV_FACTOR;
+}
+
+// Get magnetometer values
+void magRead(int16_t *mag)
+{
+	mag[0] = (int16_t)(readReg(OUT_X_H_M) << 8 | readReg(OUT_X_L_M))*M_CONV_FACTOR;
+	mag[1] = (int16_t)(readReg(OUT_Y_H_M) << 8 | readReg(OUT_Y_L_M))*M_CONV_FACTOR;
+	mag[2] = (int16_t)(readReg(OUT_Z_H_M) << 8 | readReg(OUT_Z_L_M))*M_CONV_FACTOR;
+}
+
+// Returns the angular difference in the horizontal plane between
+// a default vector an north in degrees.
+float getHead()
+{
+	// Default vector of x axis
+	float from[3] = { 1, 0, 0 };
+
+	// Get latest compass readings for calculations
+	readCompass();
+
+	return calcHeading(from);
+}
+
+// Calculate the heading
+float calcHeading(float *from)
+{
+    // Change values with values from a calibration tests...
+	int16_t min[] = { 32767, 32767, 32767 };
+	int16_t max[] = { -32767, -32767, -32767 };
+
+	float temp_m[] = { mag[0], mag[1], mag[2] };
+	float temp_a[] = { acc[0], acc[1], acc[2] };
+
+	// Initialize east and north vector
+	float East[] = {0, 0, 0};
+    float North[] = {0, 0, 0};
+
+    int i;
+	for(i = 0; i < 3; i ++)
+		temp_m[i] -= (min[i]+max[i])/2;
+
+	// Calculate North and East vectors
+	vector_cross(temp_m, temp_a, East);
+	vector_normalize(East);
+	vector_cross(temp_a, East, North);
+	vector_normalize(North);
+
+	// Calculate angular difference
+	float heading = atan2(vector_dot(East, from), vector_dot(North,from))*180/M_PI;
+
+	if (heading < 0)
+		heading += 360;
+
+	return heading;
+}
+
+// Get heading
+float getPosition()
+{
+	return getHead() + 0.5;
+}
+
+// Set the closed position
+void setClosedPosition()
+{
+	closedHeading = getPosition();
+}
+
+// Get dot product
+float vector_dot(float *a, float *b)
+{
+	return (a[0]*b[0])+ (a[1]*b[1]) + (a[2]*b[2]);
+}
+
+// Get cross product of vector
+void vector_cross(float *a, float *b, float *out)
+{
+	out[0] = (a[1]*b[2]) - (a[2]*b[1]);
+	out[1] = (a[2]*b[0]) - (a[0]*b[2]);
+	out[2] = (a[0]*b[1]) - (a[1]*b[0]);
+}
+
+// Normalize vector
+void vector_normalize(float *a)
+{
+	float m = sqrt(vector_dot(a,a));
+	int i;
+
+	for(i = 0; i < 3; i++)
+		a[i] = a[i]/m;
+}
+

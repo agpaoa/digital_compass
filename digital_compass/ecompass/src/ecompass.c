@@ -112,20 +112,6 @@ void Compass_Init()
 	writeReg(CTRL7, MAG_ON);				// Enable magnetometer
 }
 
-// Compass demo
-void Compass_Test()
-{
-	setClosedPosition();
-
-	while(1)
-	{
-		if(!isClosed())
-			printf("Door is open\n");
-		else
-			printf("Door is closed\n");
-
-	}
-}
 
 // Set the value of a register
 void writeReg(uint8_t regAddr, uint8_t regVal)
@@ -161,64 +147,6 @@ void disableCompass()
 	writeReg(CTRL7, MAG_OFF); 		// Disable magnetometer
 }
 
-// Returns true if door is in closed position
-bool isClosed()
-{
-	int ranger = 2; // Adjusts closed range
-	int rounds = 25;  // Must count to 20 closed positions to return true
-	int threshold = rounds*(0.80);
-	int lower = closedHeading - ranger;  // Lower bound of closed position
-	int upper = closedHeading + ranger;	// Upper bound of closed position
-	int count = 0;
-	int i;
-
-	// If lower is negative
-	if(lower < 0 || upper > 360)
-	{
-		if(lower < 0)
-			lower += 361;
-		if(upper > 360)
-			upper -=361;
-
-		for(i = 0; i < rounds; i++)
-		{
-			currentHeading = getPosition();
-			if( (currentHeading >= lower && currentHeading <= 360) ||
-					(currentHeading >= 0 && currentHeading <= upper))
-			{
-				printf("Heading: %d\n", currentHeading);
-				count++;
-
-			}
-			else
-			{
-				printf("Heading: %d\n", currentHeading);
-			}
-		}
-	}
-	else
-	{
-		for(i = 0; i < rounds; i++)
-		{
-			currentHeading = getPosition();
-			if(currentHeading >= lower && currentHeading <= upper )
-			{
-				printf("Heading: %d\n", currentHeading);
-				count++;
-			}
-			else
-			{
-				printf("Heading: %d\n", currentHeading);
-			}
-		}
-	}
-
-	if(count < threshold)
-		return false;
-	else
-		return true;
-}
-
 // Store ecompass readings in acc and mag
 void readCompass()
 {
@@ -244,7 +172,7 @@ void magRead(int16_t *mag)
 
 // Returns the angular difference in the horizontal plane between
 // a default vector an north in degrees.
-float getHead()
+float getHeading()
 {
 	// Default vector of x axis
 	float from[3] = { 1, 0, 0 };
@@ -258,7 +186,7 @@ float getHead()
 // Calculate the heading
 float calcHeading(float *from)
 {
-    // Change values with values from a calibration tests...
+    // Change values with values from calibration tests...
 	int16_t min[] = { 32767, 32767, 32767 };
 	int16_t max[] = { -32767, -32767, -32767 };
 
@@ -266,38 +194,26 @@ float calcHeading(float *from)
 	float temp_a[] = { acc[0], acc[1], acc[2] };
 
 	// Initialize east and north vector
-	float East[] = {0, 0, 0};
-    float North[] = {0, 0, 0};
+	float east[] = {0, 0, 0};
+    float north[] = {0, 0, 0};
 
     int i;
 	for(i = 0; i < 3; i ++)
 		temp_m[i] -= (min[i]+max[i])/2;
 
 	// Calculate North and East vectors
-	vector_cross(temp_m, temp_a, East);
-	vector_normalize(East);
-	vector_cross(temp_a, East, North);
-	vector_normalize(North);
+	vector_cross(temp_m, temp_a, east);
+	vector_normalize(east);
+	vector_cross(temp_a, east, north);
+	vector_normalize(north);
 
 	// Calculate angular difference
-	float heading = atan2(vector_dot(East, from), vector_dot(North,from))*180/M_PI;
+	float heading = atan2(vector_dot(east, from), vector_dot(north,from))*180/M_PI;
 
 	if (heading < 0)
 		heading += 360;
 
 	return heading;
-}
-
-// Get heading
-float getPosition()
-{
-	return getHead() + 0.5;
-}
-
-// Set the closed position
-void setClosedPosition()
-{
-	closedHeading = getPosition();
 }
 
 // Get dot product

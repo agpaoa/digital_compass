@@ -95,8 +95,8 @@
 // MAG	+/- 4		0.160
 // MAG	+/- 8		0.320
 // MAG	+/- 12		0.479
-#define A_CONV_FACTOR 0.061
-#define M_CONV_FACTOR 0.160
+#define A_CONV_FACTOR 0.061		// +/- 2	0.061
+#define M_CONV_FACTOR 0.160		// +/- 4	0.160
 
 
 // CONTROL REGISITER SETTINGS
@@ -105,7 +105,7 @@
 
 // ***** CONTROL 0 REGISTER SETTINGS *****
 // Initializes the LSM303D initialization settings
-#define LSM303_INIT		0x00	// 0b0000 0000 (Default)
+#define LSM303_INIT		0x00		// 0b0000 0000 (Default)
 
 // ***** CONTROL 1 REGISTER SETTINGS *****
 // Sets power mode and enable/disable axes
@@ -116,9 +116,9 @@
 
 // ***** CONTROL 2 REGISTER SETTINGS *****
 // Sets accelerometer full scale
-#define ACC_FS_2		0x00	// 0b0000 0000 +/- 2 (Default)
-#define ACC_FS_6		0x10	// 0b0001 0000 +/- 6
-#define ACC_FS_16		0x20	// 0b0010 0000 +/- 16
+#define ACC_FS_2		0x00		// 0b0000 0000 +/- 2 (Default)
+#define ACC_FS_6		0x10		// 0b0001 0000 +/- 6
+#define ACC_FS_16		0x20		// 0b0010 0000 +/- 16
 
 // ***** CONTROL 3 REGISTER SETTINGS *****
 // Interrupt 1 settings

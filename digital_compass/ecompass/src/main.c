@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <math.h>
 #include "board.h"
 #include "LSM303D.h"
 #include "ecompass.h"
@@ -18,9 +19,10 @@ int main(void)
 		//int16_t *acc = getAcc();
 		//int16_t *mag = getMag();
 		printf("Heading: %d ", currentHeading);
-		printf("Acc: %d %d %d ", acc[0], acc[1], acc[2]);
-		printf("Mag: %d %d %d\n", mag[0], mag[1], mag[2]);
-
+		//printf("Acc: %d %d %d ", acc[0], acc[1], acc[2]);
+		//printf("Mag: %d %d %d\n", mag[0], mag[1], mag[2]);
+		printf("ROLL: %d ", (int)(atan2(acc[1],sqrt(acc[0]*acc[0]+acc[2]*acc[2]))*180/M_PI));
+		printf("PITCH: %d \n", (int)(atan2(acc[0],sqrt(acc[1]*acc[1]+acc[2]*acc[2]))*180/M_PI));
 	}
 
 	return 1;

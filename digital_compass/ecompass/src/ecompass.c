@@ -240,3 +240,13 @@ void vector_normalize(float *a)
 		a[i] = a[i]/m;
 }
 
+int16_t* getAcc()
+{
+	return acc;
+}
+int16_t* getMag()
+{
+	return mag;
+}
+
+

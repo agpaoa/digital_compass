@@ -3,11 +3,26 @@ A program that implements a digital compass using a LSM303D with a
 LPC1769 ARM Cortex-M3 form NXP.
 
 ## Getting Started
+
 ### Prequisites
 1. LPCXpresso IDE
 2. digital_compass source
 3. LPC1769
 4. LSM303D
+
+#### Hardware Connections
+
+LPC1769                         LSM303D
+-------                         -------
+Header Number
+                                VDD
+H[28]                           VIN
+H[ 1]                           GND
+H[ 9]             P0[0] SDA1    SDA
+H[10]             P0[1] SCL1    SCL
+No connection                   SDO
+No connection                   INT1
+No Connection                   INT2
 
 ### To Run
 1. Download digital_compass source

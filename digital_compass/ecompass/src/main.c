@@ -18,7 +18,7 @@ int main(void)
 		currentHeading = getHeading();
 		//int16_t *acc = getAcc();
 		//int16_t *mag = getMag();
-		printf("Heading: %d ", currentHeading);
+		printf("HEADING: %d ", currentHeading);
 		//printf("Acc: %d %d %d ", acc[0], acc[1], acc[2]);
 		//printf("Mag: %d %d %d\n", mag[0], mag[1], mag[2]);
 

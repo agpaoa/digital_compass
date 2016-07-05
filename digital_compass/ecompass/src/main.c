@@ -21,8 +21,13 @@ int main(void)
 		printf("Heading: %d ", currentHeading);
 		//printf("Acc: %d %d %d ", acc[0], acc[1], acc[2]);
 		//printf("Mag: %d %d %d\n", mag[0], mag[1], mag[2]);
-		printf("ROLL: %d ", (int)(atan2(acc[1],sqrt(acc[0]*acc[0]+acc[2]*acc[2]))*180/M_PI));
-		printf("PITCH: %d \n", (int)(atan2(acc[0],sqrt(acc[1]*acc[1]+acc[2]*acc[2]))*180/M_PI));
+
+		int roll = (atan2(acc[1],sqrt(acc[0]*acc[0]+acc[2]*acc[2]))*180/M_PI);
+		int pitch = (atan2(acc[0],sqrt(acc[1]*acc[1]+acc[2]*acc[2]))*180/M_PI);
+
+
+		printf("ROLL: %d ", roll);
+		printf("PITCH: %d \n", pitch);
 	}
 
 	return 1;

@@ -9,7 +9,6 @@
 
 #include "board.h"
 
-int closedHeading;
 int currentHeading;
 
 // Protoypes

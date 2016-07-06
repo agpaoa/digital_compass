@@ -11,18 +11,18 @@ LPC1769 ARM Cortex-M3 form NXP.
 4. LSM303D
 
 #### Hardware Connections
-
-LPC1769                         LSM303D
--------                         -------
-Header Number
-                                VDD
-H[28]                           VIN
-H[ 1]                           GND
-H[ 9]             P0[0] SDA1    SDA
-H[10]             P0[1] SCL1    SCL
-No connection                   SDO
-No connection                   INT1
-No Connection                   INT2
+```
+ LPC1769           LSM303D
+---------------------------------
+ No connection     VDD
+         H[28] --> VIN
+ P0[0]   H[ 1] --> GND
+ P0[1]   H[ 9] --> SDA
+         H[10] --> SCL
+ No connection     SDO
+ No connection     INT1
+ No Connection     INT2
+```
 
 ### To Run
 1. Download digital_compass source

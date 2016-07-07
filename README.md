@@ -34,3 +34,4 @@ LPC1769 ARM Cortex-M3 form NXP.
 6. Click the digital_compass folder in the Projects panel workspace (Upper left corner) to highlight it, if not already highlighted.
 7. In the quickstart panel click Debug 'digital_compass'
 8. Click on the resume button located on the top tool bar or press the F8 key. 
+9. 

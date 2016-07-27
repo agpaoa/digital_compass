@@ -5,29 +5,26 @@
 #include "board.h"
 #include "LSM303D.h"
 #include "ecompass.h"
-extern int16_t acc[3];
-extern int16_t mag[3];
+
+// Global Variables
+// External
+extern Accelerometer acc;
+extern Magnetometer mag;
+
 int main(void)
 {
 	SystemCoreClockUpdate();
 	Board_Init();    // Initialize board
 	Compass_Init();  // Initialize compass
 
+	Compass comp;
+
 	while(1)
 	{
-		currentHeading = getHeading();
-		//int16_t *acc = getAcc();
-		//int16_t *mag = getMag();
-		printf("HEADING: %d ", currentHeading);
-		//printf("Acc: %d %d %d ", acc[0], acc[1], acc[2]);
-		//printf("Mag: %d %d %d\n", mag[0], mag[1], mag[2]);
-
-		int roll = (atan2(acc[1],sqrt(acc[0]*acc[0]+acc[2]*acc[2]))*180/M_PI);
-		int pitch = (atan2(acc[0],sqrt(acc[1]*acc[1]+acc[2]*acc[2]))*180/M_PI);
-
-
-		printf("ROLL: %d ", roll);
-		printf("PITCH: %d \n", pitch);
+		readCompass(&comp);
+		printf("heading = %.2f ", comp.heading);
+		printf("pitch = %.2f ", comp.pitch);
+		printf("roll = %.2f\n", comp.roll);
 	}
 
 	return 1;

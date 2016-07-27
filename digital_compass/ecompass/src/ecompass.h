@@ -41,7 +41,7 @@ void disableCompass();
 void readCompass(Compass *comp);
 void accRead(Accelerometer *a);
 void magRead(Magnetometer *m);
-float calcHeading(float *from, Accelerometer *acc, Magnetometer *mag);
+float calcHeading(float *from, const Accelerometer *acc, const Magnetometer *mag);
 float getHeading();
 float getPitch();
 float getRoll();

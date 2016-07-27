@@ -152,10 +152,13 @@ void readCompass(Compass *comp)
 	comp->roll = getRoll();
 }
 
+// Calculate pitch
 float getPitch()
 {
 	return (atan2(acc.x,sqrt(acc.y*acc.y+acc.z*acc.z))*180/M_PI);
 }
+
+// Calculate roll
 float getRoll()
 {
 	return (atan2(acc.y,sqrt(acc.x*acc.x+acc.z*acc.z))*180/M_PI);
@@ -192,7 +195,7 @@ float getHeading()
 }
 
 // Calculate the heading
-float calcHeading(float *from, Accelerometer *acc, Magnetometer *mag)
+float calcHeading(float *from, const Accelerometer *acc, const Magnetometer *mag)
 {
     // Change values with values from calibration tests...
 	int16_t min[] = { 32767, 32767, 32767 };
@@ -247,7 +250,6 @@ void vector_normalize(float *a)
 	for(i = 0; i < 3; i++)
 		a[i] = a[i]/m;
 }
-
 
 Accelerometer getAcc()
 {

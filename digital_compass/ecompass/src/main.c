@@ -22,9 +22,9 @@ int main(void)
 	while(1)
 	{
 		readCompass(&comp);
-		printf("heading = %.2f ", comp.heading);
-		printf("pitch = %.2f ", comp.pitch);
-		printf("roll = %.2f\n", comp.roll);
+		printf("Heading = %.1f ", comp.heading);
+		printf("Pitch = %.1f ", comp.pitch);
+		printf("Roll = %.1f\n", comp.roll);
 	}
 
 	return 1;

@@ -40,12 +40,10 @@
 #define SPEED_100KHZ		100000
 
 // Globals
-int16_t acc[3];		// Signed integer accelerometer values
-int16_t mag[3];		// Signed integer magnetometer values
-
 static I2C_ID_T i2cDev = I2C1;
 static int mode_poll;          /* Poll/Interrupt mode flag */
-
+Accelerometer acc;
+Magnetometer mag;
 
 // Initialize the I2C bus
 void I2C_Init(I2C_ID_T id, int speed)
@@ -91,10 +89,9 @@ void I2C1_IRQHandler(void)
 // Function called when timer expires
 void SysTick_Handler(void)
 {
-/*
-	printf("Closed Position: %d\t Current Position: %d\t\tDoor ", closedHeading, currentHeading);
-	isClosed() ? printf("is closed!\n") : printf("is open!\n");
-*/
+	int currentHeading = 0;
+	currentHeading = getHeading();
+	printf("Heading: %d\n", currentHeading);
 }
 
 // Initialize the compass
@@ -148,26 +145,36 @@ void disableCompass()
 }
 
 // Store ecompass readings in acc and mag
-void readCompass()
+void readCompass(Compass *comp)
 {
-	accRead(acc);
-	magRead(mag);
+	comp->heading = getHeading();
+	comp->pitch = getPitch();
+	comp->roll = getRoll();
+}
+
+float getPitch()
+{
+	return (atan2(acc.x,sqrt(acc.y*acc.y+acc.z*acc.z))*180/M_PI);
+}
+float getRoll()
+{
+	return (atan2(acc.y,sqrt(acc.x*acc.x+acc.z*acc.z))*180/M_PI);
 }
 
 // Get accelerometer values
-void accRead(int16_t *acc)
+void accRead(Accelerometer *a)
 {
-	acc[0] = (int16_t)(readReg(OUT_X_H_A) << 8 | readReg(OUT_X_L_A))*A_CONV_FACTOR;
-	acc[1] = (int16_t)(readReg(OUT_Y_H_A) << 8 | readReg(OUT_Y_L_A))*A_CONV_FACTOR;
-	acc[2] = (int16_t)(readReg(OUT_Z_H_A) << 8 | readReg(OUT_Z_L_A))*A_CONV_FACTOR;
+	a->x = (int16_t)(readReg(OUT_X_H_A) << 8 | readReg(OUT_X_L_A))*A_CONV_FACTOR;
+	a->y = (int16_t)(readReg(OUT_Y_H_A) << 8 | readReg(OUT_Y_L_A))*A_CONV_FACTOR;
+	a->z = (int16_t)(readReg(OUT_Z_H_A) << 8 | readReg(OUT_Z_L_A))*A_CONV_FACTOR;
 }
 
 // Get magnetometer values
-void magRead(int16_t *mag)
+void magRead(Magnetometer *m)
 {
-	mag[0] = (int16_t)(readReg(OUT_X_H_M) << 8 | readReg(OUT_X_L_M))*M_CONV_FACTOR;
-	mag[1] = (int16_t)(readReg(OUT_Y_H_M) << 8 | readReg(OUT_Y_L_M))*M_CONV_FACTOR;
-	mag[2] = (int16_t)(readReg(OUT_Z_H_M) << 8 | readReg(OUT_Z_L_M))*M_CONV_FACTOR;
+	m->x = (int16_t)(readReg(OUT_X_H_M) << 8 | readReg(OUT_X_L_M))*M_CONV_FACTOR;
+	m->y = (int16_t)(readReg(OUT_Y_H_M) << 8 | readReg(OUT_Y_L_M))*M_CONV_FACTOR;
+	m->z = (int16_t)(readReg(OUT_Z_H_M) << 8 | readReg(OUT_Z_L_M))*M_CONV_FACTOR;
 }
 
 // Returns the angular difference in the horizontal plane between
@@ -178,20 +185,21 @@ float getHeading()
 	float from[3] = { 1, 0, 0 };
 
 	// Get latest compass readings for calculations
-	readCompass();
+	accRead(&acc);
+	magRead(&mag);
 
-	return calcHeading(from);
+	return calcHeading(from, &acc, &mag);
 }
 
 // Calculate the heading
-float calcHeading(float *from)
+float calcHeading(float *from, Accelerometer *acc, Magnetometer *mag)
 {
     // Change values with values from calibration tests...
 	int16_t min[] = { 32767, 32767, 32767 };
 	int16_t max[] = { -32767, -32767, -32767 };
 
-	float temp_m[] = { mag[0], mag[1], mag[2] };
-	float temp_a[] = { acc[0], acc[1], acc[2] };
+	float temp_m[] = { mag->x, mag->y, mag->z };
+	float temp_a[] = { acc->x, acc->y, acc->z };
 
 	// Initialize east and north vector
 	float east[] = {0, 0, 0};
@@ -240,13 +248,12 @@ void vector_normalize(float *a)
 		a[i] = a[i]/m;
 }
 
-int16_t* getAcc()
+
+Accelerometer getAcc()
 {
 	return acc;
 }
-int16_t* getMag()
+Magnetometer getMag()
 {
 	return mag;
 }
-
-

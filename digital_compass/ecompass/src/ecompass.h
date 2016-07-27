@@ -9,7 +9,24 @@
 
 #include "board.h"
 
-int currentHeading;
+// Structures
+typedef struct _Accelerometer {
+	int16_t x;
+	int16_t y;
+	int16_t z;
+} Accelerometer;
+
+typedef struct _Magnetometer {
+	int16_t x;
+	int16_t y;
+	int16_t z;
+} Magnetometer;
+
+typedef struct _Compass {
+	float heading;
+	float pitch;
+	float roll;
+} Compass;
 
 // Protoypes
 void I2C_Init(I2C_ID_T id, int speed);
@@ -21,11 +38,13 @@ uint8_t readReg(uint8_t regAddr);
 
 void enableCompass();
 void disableCompass();
-void readCompass();
-void accRead(int16_t *acc);
-void magRead(int16_t *mag);
-float calcHeading(float *from);
+void readCompass(Compass *comp);
+void accRead(Accelerometer *a);
+void magRead(Magnetometer *m);
+float calcHeading(float *from, Accelerometer *acc, Magnetometer *mag);
 float getHeading();
+float getPitch();
+float getRoll();
 float vector_dot(float *a, float *b);
 void vector_cross(float *a, float *b, float *out);
 void vector_normalize(float *a);

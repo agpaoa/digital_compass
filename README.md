@@ -12,7 +12,7 @@ A program that implements a digital compass using a LSM303D with a LPC1769 ARM C
 #### Hardware Connections
 ```
  LPC1769           LSM303D
----------------------------------
+---------------------------
  No connection     VDD
          H[28] --> VIN
  P0[0]   H[ 1] --> GND
@@ -24,7 +24,7 @@ A program that implements a digital compass using a LSM303D with a LPC1769 ARM C
 ```
 
 ### To Run
-1. Download digital_compass source
+1. Download digital_compass source.
 2. Run LPCXpresso and choose workspace location.
 3. In the LPCXpresso Quickstart panel (lower left corner), click on **Import Projects**.
 4. In the Import Projects Window
@@ -32,7 +32,7 @@ A program that implements a digital compass using a LSM303D with a LPC1769 ARM C
    - If the digital_compass source downloaded in step 1 is not zipped, click **Browse** under **Project Directory (unpacked)** and browse for the digital_compass source you downloaded in step 1.
 5. Click next after locating source.
 6. Select all (digital_compass, lpc_board_nxp_lpcxpresso_1769, lpc_chip_175x_6x). Under Options check box for **Copy projects into workspace**. Click Finish.
-7. Often the LPCXpresso Console will not display printf's correctly. To fix this go to the Quickstart panel and click on **Quick Settings**.
+7. Sometimes the LPCXpresso console will not handle a printf correctly with its default settings. To fix this go to the Quickstart panel and click on **Quick Settings**. Make sure all debug sessions are stopped and the digital_compass folder in the Projects panel workspace (Upper left corner) is highlighted.
    - Select **Set Library/Header Type**
    - Select **Newlib (semihost)**
 8. Using the Quickstart panel, click on **Build all projects**.

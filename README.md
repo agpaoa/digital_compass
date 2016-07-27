@@ -39,3 +39,9 @@ A program that implements a digital compass using a LSM303D with a LPC1769 ARM C
 9. Click the digital_compass folder in the Projects panel workspace (Upper left corner) to highlight it, if not already highlighted.
 10. In the Quickstart panel click **Debug 'digital_compass'**.
 11. Click on the resume button located on the top tool bar or press the **F8** key. 
+
+### To Use
+For this specific setup, the LSM303D chip is facing up. The x axis on the LSM303D is the direction of travel. To find North, point and move the direction of travel (the x axis) till the heading in the LPCXpresso console displays a reading of 0 or 359 degrees.
+- Heading : rotate the compass about the z axis.
+- Pitch   : rotate the compass about the y axis.
+- Roll    : rotate the compass about the x axis. 
